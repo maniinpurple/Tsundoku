@@ -1,0 +1,28 @@
+{
+  "name": "tsundoku",
+  "description": "Download anime episodes from streaming sites, one episode or a whole season.",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "wxt -b firefox",
+    "dev:chrome": "wxt",
+    "build": "wxt build -b firefox",
+    "build:chrome": "wxt build",
+    "zip": "wxt zip -b firefox",
+    "check": "tsc --noEmit",
+    "postinstall": "wxt prepare"
+  },
+  "devDependencies": {
+    "@types/react": "^19.3.0",
+    "@types/react-dom": "^19.3.0",
+    "@wxt-dev/module-react": "^1.2.2",
+    "typescript": "^7.0.2",
+    "web-ext": "^10.8.0",
+    "wxt": "^0.21.5"
+  },
+  "dependencies": {
+    "react": "^19.3.1",
+    "react-dom": "^19.3.1"
+  }
+}
