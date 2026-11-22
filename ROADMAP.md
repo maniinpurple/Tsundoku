@@ -46,10 +46,12 @@ src/
 ├── background/       Message handlers (the work the background does)
 ├── core/             Site-agnostic: types, messages, registry, http, (later) hls, mux, queue, naming
 ├── sources/<site>/   One folder per streaming site: index.ts (Source), parse.ts (HTML → data), config.ts
-└── players/<host>/   One folder per embed host (Zoko, megaplay). Shared by all sites. (M2)
+└── players/<host>/   One folder per embed host (Zoko; later megaplay). Implements the Player interface.
 ```
 
-Adding a site later = new `src/sources/<site>/` implementing `Source`, plus one line in `core/registry.ts`.
+Adding a site = new `src/sources/<site>/` implementing `Source`; adding an embed host = new `src/players/<host>/`
+implementing `Player`. Each is one line in `core/registry.ts`. `core/resolve.ts` tries every server of the
+wanted track that has a supported player, in the site's order.
 
 ## Milestones
 
@@ -57,7 +59,9 @@ Adding a site later = new `src/sources/<site>/` implementing `Source`, plus one 
       source registry, HiAnime URL detection (detail and watch pages, any mirror domain).
 - [x] **M1: episode list** (2026-11-22). Popup shows title, poster, Sub/Dub counts and every episode
       (number, title, filler badge, current episode highlighted). Results cached 10 min in the background.
-- [ ] **M2: resolve one episode.** Episode → server → Zoko → `master.m3u8`, qualities, subtitles. Sub/Dub.
+- [x] **M2: resolve one episode** (2026-11-22). Sub/Dub picker; click an episode → servers → Zoko →
+      `master.m3u8` → qualities + subtitles, each with a Copy link button. Player plug-ins in `src/players`,
+      Referer added by a declarativeNetRequest session rule limited to the extension's own requests.
 - [ ] **M3: download one episode as `.ts`.** Fetch segments with the right Referer, several at a time,
       save to disk. Check memory use on a 1080p episode (biggest risk).
 - [ ] **M4: MP4 + subtitles.** Convert TS → MP4 in the browser, format setting, save subtitles as `.srt`.

@@ -1,17 +1,19 @@
 import type { MessageName, Reply, Request, TabInfo } from "../core/messages";
 import { findSource, getSource } from "../core/registry";
+import { resolveEpisode } from "../core/resolve";
 import type { Source } from "../core/types";
 
 type Handlers = { [N in MessageName]: (payload: Request<N>) => Promise<Reply<N>> };
 
 const CACHE_MS = 10 * 60_000;
+const STREAM_CACHE_MS = 2 * 60_000;
 const cache = new Map<string, { expires: number; value: Promise<unknown> }>();
 
-function cached<T>(key: string, load: () => Promise<T>): Promise<T> {
+function cached<T>(key: string, load: () => Promise<T>, ttl = CACHE_MS): Promise<T> {
   const hit = cache.get(key);
   if (hit && hit.expires > Date.now()) return hit.value as Promise<T>;
   const value = load();
-  cache.set(key, { expires: Date.now() + CACHE_MS, value });
+  cache.set(key, { expires: Date.now() + ttl, value });
   value.catch(() => cache.delete(key));
   return value;
 }
@@ -41,5 +43,11 @@ export const handlers: Handlers = {
       cached(`episodes:${key}`, () => source.listEpisodes(ref)),
     ]);
     return { anime: { ...anime, ref }, episodes };
+  },
+
+  async resolveEpisode({ ref, episodeId, track }) {
+    const source = sourceById(ref.sourceId);
+    const key = `stream:${ref.sourceId}:${ref.siteUrl}:${episodeId}:${track}`;
+    return cached(key, () => resolveEpisode(source, ref, episodeId, track), STREAM_CACHE_MS);
   },
 };

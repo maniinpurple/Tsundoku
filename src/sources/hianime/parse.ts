@@ -1,4 +1,4 @@
-import type { AnimeInfo, AnimeRef, Episode } from "../../core/types";
+import type { AnimeInfo, AnimeRef, Episode, Server } from "../../core/types";
 
 const text = (element: Element | null | undefined) => element?.textContent?.trim() || undefined;
 
@@ -40,4 +40,18 @@ export function parseEpisodeList(doc: Document): Episode[] {
     });
   }
   return episodes;
+}
+
+export function parseServerList(doc: Document): Server[] {
+  const servers: Server[] = [];
+  for (const item of doc.querySelectorAll(".server-item")) {
+    const track = item.getAttribute("data-type");
+    const name = item.getAttribute("data-server-name");
+    const hash = item.getAttribute("data-hash");
+    if ((track !== "sub" && track !== "dub") || !name || !hash) continue;
+    const embedUrl = atob(hash);
+    if (!URL.canParse(embedUrl)) continue;
+    servers.push({ name, track, embedUrl });
+  }
+  return servers;
 }

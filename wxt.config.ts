@@ -11,7 +11,7 @@ export default defineConfig({
   manifest: {
     name: "Tsundoku",
     description: "Download anime episodes from streaming sites, one episode or a whole season.",
-    permissions: ["activeTab"],
+    permissions: ["activeTab", "declarativeNetRequestWithHostAccess"],
     // Sites move between mirror domains and video CDNs change often, so a fixed host list would keep breaking.
     host_permissions: ["<all_urls>"],
     icons: { 48: "icon.svg", 96: "icon.svg" },

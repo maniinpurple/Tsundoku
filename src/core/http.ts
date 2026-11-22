@@ -1,3 +1,5 @@
+import { useReferer } from "./headers";
+
 const TIMEOUT_MS = 15_000;
 
 export class FetchError extends Error {
@@ -9,7 +11,12 @@ export class FetchError extends Error {
   }
 }
 
-async function request(url: string, init?: RequestInit): Promise<Response> {
+export interface FetchOptions extends RequestInit {
+  referer?: string;
+}
+
+async function request(url: string, { referer, ...init }: FetchOptions = {}): Promise<Response> {
+  if (referer) await useReferer(url, referer);
   let response: Response;
   try {
     response = await fetch(url, { ...init, signal: AbortSignal.timeout(TIMEOUT_MS) });
@@ -20,12 +27,12 @@ async function request(url: string, init?: RequestInit): Promise<Response> {
   return response;
 }
 
-export async function fetchText(url: string, init?: RequestInit): Promise<string> {
-  return (await request(url, init)).text();
+export async function fetchText(url: string, options?: FetchOptions): Promise<string> {
+  return (await request(url, options)).text();
 }
 
-export async function fetchJson<T>(url: string, init?: RequestInit): Promise<T> {
-  return (await request(url, init)).json() as Promise<T>;
+export async function fetchJson<T>(url: string, options?: FetchOptions): Promise<T> {
+  return (await request(url, options)).json() as Promise<T>;
 }
 
 export function parseHtml(html: string): Document {

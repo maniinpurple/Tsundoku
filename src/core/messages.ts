@@ -1,5 +1,5 @@
 import { browser } from "wxt/browser";
-import type { AnimeInfo, AnimeRef, Episode } from "./types";
+import type { AnimeInfo, AnimeRef, Episode, ResolvedEpisode, Track } from "./types";
 
 export type TabInfo =
   | { kind: "anime"; sourceName: string; anime: AnimeRef }
@@ -9,6 +9,7 @@ export type TabInfo =
 export interface MessageMap {
   inspectTab: { request: { url: string }; reply: TabInfo };
   loadAnime: { request: { ref: AnimeRef }; reply: { anime: AnimeInfo; episodes: Episode[] } };
+  resolveEpisode: { request: { ref: AnimeRef; episodeId: string; track: Track }; reply: ResolvedEpisode };
 }
 
 export type MessageName = keyof MessageMap;

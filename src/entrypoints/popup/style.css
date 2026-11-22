@@ -62,9 +62,34 @@ button.primary { background: var(--accent); border-color: var(--accent); color: 
   border-radius: 10px;
   background: var(--surface);
 }
-.episodes li { display: flex; align-items: center; gap: 10px; padding: 7px 10px; }
+.episodes li { display: block; }
+.ep-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  width: 100%;
+  padding: 7px 10px;
+  border: 0;
+  border-radius: 0;
+  background: none;
+  text-align: left;
+}
+.ep-row:hover, .ep-row[aria-expanded="true"] { background: var(--hover); }
 .episodes li + li { border-top: 1px solid var(--hover); }
 .episodes li.current { background: var(--hover); box-shadow: inset 3px 0 var(--accent); }
 .ep-number { width: 32px; text-align: right; color: var(--muted); font-variant-numeric: tabular-nums; flex-shrink: 0; }
 .ep-title { flex: 1; min-width: 0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 .badge { font-size: 10px; padding: 1px 6px; border-radius: 999px; background: var(--hover); color: var(--muted); }
+
+button:disabled { opacity: .45; cursor: default; }
+
+.segmented { display: inline-flex; margin-bottom: 10px; padding: 2px; border-radius: 9px; background: var(--surface); }
+.segmented button { border: 0; background: none; padding: 4px 14px; border-radius: 7px; }
+.segmented button[aria-checked="true"] { background: var(--accent); color: var(--accent-text); }
+
+.stream { display: grid; gap: 6px; padding: 8px 10px 10px 52px; }
+.stream .error-box { margin: 0; }
+.link-list { list-style: none; margin: 0; padding: 0; display: grid; gap: 4px; }
+.link-list li { display: flex; align-items: center; gap: 8px; }
+.quality { font-weight: 600; min-width: 56px; }
+.small-button { margin-left: auto; padding: 2px 8px; font-size: 12px; border-radius: 6px; }

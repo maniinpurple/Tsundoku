@@ -1,9 +1,9 @@
 import { FetchError, fetchJson, fetchText, parseHtml } from "../../core/http";
 import type { Source } from "../../core/types";
 import { hianimeConfig } from "./config";
-import { parseAnimePage, parseEpisodeList } from "./parse";
+import { parseAnimePage, parseEpisodeList, parseServerList } from "./parse";
 
-type EpisodeListResponse = { status: boolean; html?: string };
+type HtmlResponse = { status: boolean; html?: string };
 
 export const hianime: Source = {
   id: "hianime",
@@ -31,8 +31,14 @@ export const hianime: Source = {
 
   async listEpisodes(ref) {
     const numericId = ref.animeId.split("-").at(-1)!;
-    const data = await fetchJson<EpisodeListResponse>(hianimeConfig.episodeListApi(ref.siteUrl, numericId));
+    const data = await fetchJson<HtmlResponse>(hianimeConfig.episodeListApi(ref.siteUrl, numericId));
     if (!data.status || !data.html) throw new FetchError("HiAnime has no episode list for this anime");
     return parseEpisodeList(parseHtml(data.html));
+  },
+
+  async listServers(ref, episodeId) {
+    const data = await fetchJson<HtmlResponse>(hianimeConfig.serversApi(ref.siteUrl, episodeId));
+    if (!data.status || !data.html) throw new FetchError("HiAnime has no servers for this episode");
+    return parseServerList(parseHtml(data.html));
   },
 };
