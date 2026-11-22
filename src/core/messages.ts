@@ -1,27 +1,24 @@
-// The popup and the background are separate programs (popup dies when it closes,
-// background keeps running). They talk by messages, like two processes over IPC.
-// Every message type and its reply type are listed here, so both sides agree.
 import { browser } from "wxt/browser";
-import type { AnimeRef } from "./types";
+import type { AnimeInfo, AnimeRef, Episode } from "./types";
 
-/** Reply to "inspectTab": what is on the page the user is looking at? */
 export type TabInfo =
   | { kind: "anime"; sourceName: string; anime: AnimeRef }
-  | { kind: "site-page"; sourceName: string } // supported site, but not an anime page
+  | { kind: "site-page"; sourceName: string }
   | { kind: "unsupported" };
 
-/** Map: message name -> { request payload, reply }. Add new messages here. */
 export interface MessageMap {
   inspectTab: { request: { url: string }; reply: TabInfo };
+  loadAnime: { request: { ref: AnimeRef }; reply: { anime: AnimeInfo; episodes: Episode[] } };
 }
 
 export type MessageName = keyof MessageMap;
-export type Message<N extends MessageName = MessageName> = { name: N } & MessageMap[N]["request"];
+export type Request<N extends MessageName> = MessageMap[N]["request"];
+export type Reply<N extends MessageName> = MessageMap[N]["reply"];
+export type Envelope = { [N in MessageName]: { name: N; payload: Request<N> } }[MessageName];
+export type Result<T> = { ok: true; data: T } | { ok: false; error: string };
 
-/** Popup side: send a message and get a typed reply. */
-export function send<N extends MessageName>(
-  name: N,
-  request: MessageMap[N]["request"],
-): Promise<MessageMap[N]["reply"]> {
-  return browser.runtime.sendMessage({ name, ...request });
+export async function send<N extends MessageName>(name: N, payload: Request<N>): Promise<Reply<N>> {
+  const result: Result<Reply<N>> = await browser.runtime.sendMessage({ name, payload });
+  if (!result.ok) throw new Error(result.error);
+  return result.data;
 }

@@ -1,4 +1,3 @@
-// The list of supported sites. Adding a site = write src/sources/<site>/ and add one line here.
 import { hianime } from "../sources/hianime";
 import type { Source } from "./types";
 

@@ -1,12 +1,9 @@
-// hianime adapter. Logic ported from ani-box/ani-resolver/src/hianime.
-import type { AnimeRef, Source } from "../../core/types";
+import { FetchError, fetchJson, fetchText, parseHtml } from "../../core/http";
+import type { Source } from "../../core/types";
 import { hianimeConfig } from "./config";
+import { parseAnimePage, parseEpisodeList } from "./parse";
 
-// Anime pages look like:
-//   /frieren-beyond-journeys-end-481            (detail page)
-//   /watch/frieren-beyond-journeys-end-481?ep=9227  (watch page)
-// The id always ends with "-<number>"; that number is what hianime's APIs want.
-const animePath = /^\/(?:watch\/)?([a-z0-9-]+-\d+)\/?$/i;
+type EpisodeListResponse = { status: boolean; html?: string };
 
 export const hianime: Source = {
   id: "hianime",
@@ -16,13 +13,26 @@ export const hianime: Source = {
     return hianimeConfig.hostPattern.test(url.hostname);
   },
 
-  parseAnimeUrl(url): AnimeRef | null {
-    const match = url.pathname.match(animePath);
-    if (!match?.[1]) return null;
+  parseAnimeUrl(url) {
+    const animeId = url.pathname.match(hianimeConfig.animePath)?.[1];
+    if (!animeId) return null;
     return {
       sourceId: this.id,
-      animeId: match[1],
+      siteUrl: url.origin,
+      animeId,
       episodeId: url.searchParams.get("ep") ?? undefined,
     };
+  },
+
+  async getAnime(ref) {
+    const html = await fetchText(`${ref.siteUrl}/${ref.animeId}`);
+    return parseAnimePage(parseHtml(html), ref);
+  },
+
+  async listEpisodes(ref) {
+    const numericId = ref.animeId.split("-").at(-1)!;
+    const data = await fetchJson<EpisodeListResponse>(hianimeConfig.episodeListApi(ref.siteUrl, numericId));
+    if (!data.status || !data.html) throw new FetchError("HiAnime has no episode list for this anime");
+    return parseEpisodeList(parseHtml(data.html));
   },
 };

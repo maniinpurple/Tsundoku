@@ -41,20 +41,22 @@ Background (the brain, keeps running)
 ```
 src/
 ├── entrypoints/      Things the browser runs (WXT finds them by folder name)
-│   ├── background.ts   the brain: answers messages, will run the download queue
+│   ├── background.ts   routes messages to src/background/handlers.ts
 │   └── popup/          the UI shown when you click the toolbar icon (React)
-├── core/             Site-agnostic: types, messages, registry, (later) hls, mux, queue, naming
-├── sources/<site>/   One folder per streaming site. Implements the Source interface.
+├── background/       Message handlers (the work the background does)
+├── core/             Site-agnostic: types, messages, registry, http, (later) hls, mux, queue, naming
+├── sources/<site>/   One folder per streaming site: index.ts (Source), parse.ts (HTML → data), config.ts
 └── players/<host>/   One folder per embed host (Zoko, megaplay). Shared by all sites. (M2)
 ```
 
-Adding a site later = new `src/sources/<site>/`, one line in `core/registry.ts`, and its domains in the manifest.
+Adding a site later = new `src/sources/<site>/` implementing `Source`, plus one line in `core/registry.ts`.
 
 ## Milestones
 
 - [x] **M0: skeleton** (2026-11-22). WXT + React + TypeScript, Firefox MV3, popup ⇄ background messages,
       source registry, HiAnime URL detection (detail and watch pages, any mirror domain).
-- [ ] **M1: episode list.** Popup shows the anime title and all episodes (number, title).
+- [x] **M1: episode list** (2026-11-22). Popup shows title, poster, Sub/Dub counts and every episode
+      (number, title, filler badge, current episode highlighted). Results cached 10 min in the background.
 - [ ] **M2: resolve one episode.** Episode → server → Zoko → `master.m3u8`, qualities, subtitles. Sub/Dub.
 - [ ] **M3: download one episode as `.ts`.** Fetch segments with the right Referer, several at a time,
       save to disk. Check memory use on a 1080p episode (biggest risk).
@@ -71,5 +73,6 @@ Adding a site later = new `src/sources/<site>/`, one line in `core/registry.ts`,
 |---|---|
 | Site changes domain, API, or the Zoko key | All such values live in each adapter's `config.ts` |
 | 900 MB episodes in browser memory | Measure in M3; keep segments as Blobs (Firefox moves large Blobs to disk) |
+| Chrome's background has no `DOMParser` | All HTML parsing goes through `parseHtml` in `core/http.ts`; swap it (offscreen document or linkedom) for the Chrome build |
 | Many requests at once get rate-limited | Small concurrency limit, retries with backoff |
 | Legal | Personal use only |

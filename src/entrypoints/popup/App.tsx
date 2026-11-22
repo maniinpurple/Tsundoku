@@ -1,55 +1,56 @@
-// The popup: what you see when you click the toolbar icon.
-// It only shows things; it asks the background for anything that needs work.
-import { useEffect, useState } from "react";
 import { browser } from "wxt/browser";
 import { send, type TabInfo } from "../../core/messages";
+import { AnimeView } from "./AnimeView";
+import { ErrorBox } from "./ErrorBox";
+import { useAsync } from "./useAsync";
 
-type State = { status: "loading" } | { status: "ready"; info: TabInfo } | { status: "error"; message: string };
+const ALL_SITES = { origins: ["<all_urls>"] };
 
-async function inspectCurrentTab(): Promise<TabInfo> {
-  const [tab] = await browser.tabs.query({ active: true, currentWindow: true });
-  if (!tab?.url) return { kind: "unsupported" };
-  return send("inspectTab", { url: tab.url });
+async function inspectCurrentTab(): Promise<{ tab: TabInfo; hasAccess: boolean }> {
+  const [active] = await browser.tabs.query({ active: true, currentWindow: true });
+  const tab: TabInfo = active?.url ? await send("inspectTab", { url: active.url }) : { kind: "unsupported" };
+  const hasAccess = await browser.permissions.contains(ALL_SITES);
+  return { tab, hasAccess };
 }
 
 export function App() {
-  const [state, setState] = useState<State>({ status: "loading" });
-
-  useEffect(() => {
-    inspectCurrentTab()
-      .then((info) => setState({ status: "ready", info }))
-      .catch((error: unknown) => setState({ status: "error", message: String(error) }));
-  }, []);
+  const [state, retry] = useAsync(inspectCurrentTab, []);
 
   return (
     <main>
-      <header>
-        <img src="/icon.svg" alt="" width={24} height={24} />
+      <header className="app-header">
+        <img src="/icon.svg" alt="" width={22} height={22} />
         <h1>Tsundoku</h1>
       </header>
-      <TabStatus state={state} />
+      {state.status === "loading" && <p className="muted">Looking at this page…</p>}
+      {state.status === "error" && <ErrorBox message={state.message} onRetry={retry} />}
+      {state.status === "ready" && <TabView {...state.data} onAccessGranted={retry} />}
     </main>
   );
 }
 
-function TabStatus({ state }: { state: State }) {
-  if (state.status === "loading") return <p className="muted">Looking at this page…</p>;
-  if (state.status === "error") return <p className="error">Something went wrong: {state.message}</p>;
-
-  const { info } = state;
-  switch (info.kind) {
+function TabView({ tab, hasAccess, onAccessGranted }: { tab: TabInfo; hasAccess: boolean; onAccessGranted: () => void }) {
+  switch (tab.kind) {
     case "unsupported":
       return <p className="muted">This site is not supported yet. Open an anime page on HiAnime.</p>;
     case "site-page":
-      return <p className="muted">You are on {info.sourceName}. Open an anime to download its episodes.</p>;
+      return <p className="muted">You are on {tab.sourceName}. Open an anime to see its episodes.</p>;
     case "anime":
-      return (
-        <section className="card">
-          <div className="label">{info.sourceName}</div>
-          <div className="title">{info.anime.animeId}</div>
-          {info.anime.episodeId && <div className="muted">Episode id {info.anime.episodeId}</div>}
-          <p className="muted small">Episode list arrives in M1.</p>
-        </section>
-      );
+      if (!hasAccess) return <AccessRequest onGranted={onAccessGranted} />;
+      return <AnimeView sourceName={tab.sourceName} animeRef={tab.anime} />;
   }
+}
+
+function AccessRequest({ onGranted }: { onGranted: () => void }) {
+  const request = async () => {
+    if (await browser.permissions.request(ALL_SITES)) onGranted();
+  };
+  return (
+    <section className="card">
+      <p>Tsundoku needs access to websites to read episode lists and download videos.</p>
+      <button className="primary" onClick={request}>
+        Allow access
+      </button>
+    </section>
+  );
 }
