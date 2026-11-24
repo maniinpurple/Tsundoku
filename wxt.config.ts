@@ -1,4 +1,5 @@
 import { defineConfig } from "wxt";
+import { FIREFOX_UPDATE_URL, GECKO_ID } from "./src/core/project";
 
 export default defineConfig({
   srcDir: "src",
@@ -35,9 +36,10 @@ export default defineConfig({
       ? {
           browser_specific_settings: {
             gecko: {
-              id: "tsundoku@local",
+              id: GECKO_ID,
               strict_min_version: "140.0",
               data_collection_permissions: { required: ["none"] },
+              update_url: FIREFOX_UPDATE_URL,
             },
           },
         }

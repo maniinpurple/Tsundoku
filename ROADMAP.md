@@ -94,6 +94,9 @@ wanted track that has a supported player, in the site's order.
 - [x] **Chrome** (2026-11-24). Same code: HTML parsed with node-html-parser (no DOM in Chrome's service worker),
       an offscreen page makes blob URLs for the download manager, PNG icons, per-browser manifest, startup
       listeners so Chrome wakes the worker to resume downloads. `E2E_BROWSER=chrome npm run e2e` passes.
+- [x] **Releases and updates** (2026-11-24). Pushing a `v*` tag signs the Firefox build (unlisted), publishes a
+      GitHub release with both builds and updates `updates.json`, so Firefox updates itself. Chrome shows a
+      "new version" notice in the popup (GitHub API, checked every 6 h).
 - [ ] **Later:** "Download" buttons on the site itself, italics in embedded subtitles,
       fallback to the HD-1 (megaplay) server, more sites.
 

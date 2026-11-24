@@ -14,7 +14,7 @@
     "check": "tsc --noEmit",
     "postinstall": "wxt prepare",
     "e2e": "node scripts/e2e.mjs",
-    "lint": "web-ext lint -s dist/firefox-mv3",
+    "lint": "web-ext lint --self-hosted -s dist/firefox-mv3",
     "health": "node scripts/health-check.mjs",
     "zip:chrome": "wxt zip -b chrome"
   },

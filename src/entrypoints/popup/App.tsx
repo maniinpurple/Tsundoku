@@ -6,6 +6,7 @@ import { DownloadsPanel } from "./DownloadsPanel";
 import { ErrorBox } from "./ErrorBox";
 import { SettingsPanel } from "./SettingsPanel";
 import type { Theme } from "../../core/settings";
+import { newerRelease } from "../../core/updates";
 import { FEATURE_REQUEST_URL, SUPPORT_URL } from "./links";
 import { useAsync } from "./useAsync";
 import { useSettings } from "./useSettings";
@@ -26,6 +27,8 @@ async function inspectCurrentTab(): Promise<{ tab: TabInfo; hasAccess: boolean }
 
 export function App() {
   const [state, retry] = useAsync(inspectCurrentTab, []);
+  // Firefox updates itself from updates.json; Chrome cannot for extensions installed outside the store.
+  const [update] = useAsync(async () => (import.meta.env.CHROME ? newerRelease() : null), []);
   const [view, setView] = useState<View>("episodes");
   const [settings, updateSettings] = useSettings();
   const jobs = useDownloads();
@@ -55,6 +58,11 @@ export function App() {
           </button>
         </nav>
       </header>
+      {update.status === "ready" && update.data && (
+        <a className="update-banner" href={update.data.url} target="_blank" rel="noreferrer">
+          Tsundoku {update.data.version} is available · <strong>Download</strong>
+        </a>
+      )}
       {view === "downloads" && <DownloadsPanel jobs={jobs} />}
       {view === "settings" && <SettingsPanel />}
       {view === "episodes" && state.status === "loading" && <p className="muted">Looking at this page…</p>}

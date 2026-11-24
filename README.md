@@ -72,14 +72,17 @@ or Vivaldi, which install Chrome extensions the same way).
 1. Download the latest `tsundoku-*.xpi` from [Releases](https://github.com/maniinpurple/Tsundoku/releases).
 2. Open the file with Firefox (or drag it onto a Firefox window) and click **Add**.
 
+Firefox updates Tsundoku by itself when a new release is out.
+
 ### Chrome
 
 1. Download the latest `tsundoku-*-chrome.zip` from [Releases](https://github.com/maniinpurple/Tsundoku/releases) and unzip it.
 2. Open `chrome://extensions`, switch on **Developer mode** (top right).
 3. Click **Load unpacked** and choose the unzipped folder. Keep the folder: Chrome loads the extension from it.
 
-The extension stays installed after Chrome restarts. To update, unzip the new release over the same folder and
-click the reload icon on Tsundoku in `chrome://extensions`.
+The extension stays installed after Chrome restarts. Chrome cannot update extensions installed this way, so the
+popup shows a notice when a new release is out: unzip it over the same folder and click the reload icon on
+Tsundoku in `chrome://extensions`.
 
 ### From source, for testing
 
