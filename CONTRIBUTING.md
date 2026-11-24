@@ -34,7 +34,7 @@ before writing a lot of code.
 
 ## Development setup
 
-Requirements: Node.js 22.12+, npm, Firefox 140+.
+Requirements: Node.js 22.12+, npm, Firefox 140+ (and Chrome 120+ to test the Chrome build).
 
 ```bash
 git clone https://github.com/<your-username>/Tsundoku.git   # your fork, see "Pull requests" below
@@ -51,7 +51,8 @@ npm run dev
 | `npm run check` | Type-check |
 | `npm run build` | Build into `dist/firefox-mv3` |
 | `npm run lint` | Mozilla's add-on linter (run after `build`) |
-| `npm run e2e` | Download a real episode in a hidden Firefox and print the result |
+| `npm run e2e` | Download a real episode in a hidden Firefox and print the result (`E2E_BROWSER=chrome` for Chrome) |
+| `npm run dev:chrome`, `npm run build:chrome` | The same for Chrome |
 | `npm run health` | Check every supported site and player, redraw `status/status.svg` and the badges |
 
 ## Project layout
@@ -95,13 +96,18 @@ When a site or player starts working:
 - Values a site can change (domains, API paths, keys, selectors) belong in that site's `config.ts` or `parse.ts`,
   never scattered through the code.
 - The background talks to the popup only through the typed messages in `src/core/messages.ts`.
+- The same code runs in Firefox (background page) and Chrome (service worker, no DOM). Do not use `DOMParser`,
+  `document` or `URL.createObjectURL` in `src/background`, `src/core` or `src/sources`: use `parseHtml` from
+  `src/core/http.ts` and `fileUrl` from `src/background/file-urls.ts`. Browser-specific code checks
+  `import.meta.env.FIREFOX` / `import.meta.env.CHROME`.
 
 ## Testing your change
 
 There is no unit test suite yet. Before opening a pull request:
 
 1. `npm run check`, `npm run build` and `npm run lint` pass.
-2. `npm run e2e` finishes with "Done" (it downloads Frieren episode 1 at 360p, about 70 MB).
+2. `npm run e2e` and `E2E_BROWSER=chrome npm run e2e` finish with "Done" (each downloads Frieren episode 1 at
+   360p, about 70 MB).
    If you changed downloading or resuming, also run `E2E_INTERRUPT=1 npm run e2e`.
 3. You tried the popup by hand in `npm run dev`: select episodes, download, open the file.
 4. If you touched MP4 or subtitle code: the file plays in at least two players (e.g. VLC and QuickTime),

@@ -18,8 +18,14 @@ jobs:
       - run: npm run check
       - run: npm run build
       - run: npm run lint
+      - run: npm run build:chrome
       - run: npm run zip
+      - run: npm run zip:chrome
       - uses: actions/upload-artifact@v4
         with:
           name: tsundoku-firefox
           path: dist/*-firefox.zip
+      - uses: actions/upload-artifact@v4
+        with:
+          name: tsundoku-chrome
+          path: dist/*-chrome.zip

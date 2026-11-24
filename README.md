@@ -6,13 +6,14 @@
 
 **積ん読** · buying books and letting them pile up unread. Here: anime episodes.
 
-A Firefox extension that downloads anime episodes from streaming sites as normal MP4 files,
+A browser extension for **Firefox** and **Chrome** that downloads anime episodes from streaming sites as normal MP4 files,
 one episode or a whole season at a time, with subtitles inside the video.
 
 [![health](https://img.shields.io/endpoint?url=https%3A%2F%2Fraw.githubusercontent.com%2Fmaniinpurple%2FTsundoku%2Fmain%2Fstatus%2Fbadges%2Fhealth.json)](#supported-sites)
 [![uptime 7d](https://img.shields.io/endpoint?url=https%3A%2F%2Fraw.githubusercontent.com%2Fmaniinpurple%2FTsundoku%2Fmain%2Fstatus%2Fbadges%2Fuptime.json)](#supported-sites)
 [![CI](https://github.com/maniinpurple/Tsundoku/actions/workflows/ci.yml/badge.svg)](https://github.com/maniinpurple/Tsundoku/actions/workflows/ci.yml)
-[![Firefox 140+](https://img.shields.io/badge/Firefox-140%2B-FF7139?logo=firefoxbrowser&logoColor=white)](#install)
+[![Firefox 140+](https://img.shields.io/badge/Firefox-140%2B-FF7139?logo=firefoxbrowser&logoColor=white)](#firefox)
+[![Chrome 120+](https://img.shields.io/badge/Chrome-120%2B-4285F4?logo=googlechrome&logoColor=white)](#chrome)
 [![License: GPL-3.0](https://img.shields.io/badge/license-GPL--3.0-blue)](LICENSE)
 
 [Install](#install) · [Use it](#how-to-use) · [Supported sites](#supported-sites) · [FAQ](#faq) ·
@@ -30,7 +31,7 @@ one episode or a whole season at a time, with subtitles inside the video.
   Separate `.srt` files are available too (handy for Jellyfin and Plex).
 - **Sub or Dub**, **quality** of your choice (falls back to the next lower one when an episode lacks it).
 - **Queue** with 1–3 episodes at a time, progress, Cancel and Retry.
-- **Resumes** where it stopped if Firefox unloads the extension or quits mid-download.
+- **Resumes** where it stopped if the browser unloads the extension or quits mid-download.
 - **Remembers** which episodes you already have (✓). Downloading one again still works, with a reminder.
 - **Light and dark theme**, or follow the system (button at the top right, or the ⚙ tab).
 - **Your own file names:** folder and file name template, e.g. `{anime}/{anime} - E{episode} [{quality}]`.
@@ -63,14 +64,24 @@ If something stops working, please [open an issue](https://github.com/maniinpurp
 
 ## Install
 
-Tsundoku needs **Firefox 140 or newer** (desktop). A Chrome version is planned.
+Tsundoku works in **Firefox 140+** and **Chrome 120+** on desktop (and Chromium browsers such as Edge, Brave
+or Vivaldi, which install Chrome extensions the same way).
 
-### Option A: signed release (recommended)
+### Firefox
 
 1. Download the latest `tsundoku-*.xpi` from [Releases](https://github.com/maniinpurple/Tsundoku/releases).
 2. Open the file with Firefox (or drag it onto a Firefox window) and click **Add**.
 
-### Option B: from source, for testing
+### Chrome
+
+1. Download the latest `tsundoku-*-chrome.zip` from [Releases](https://github.com/maniinpurple/Tsundoku/releases) and unzip it.
+2. Open `chrome://extensions`, switch on **Developer mode** (top right).
+3. Click **Load unpacked** and choose the unzipped folder. Keep the folder: Chrome loads the extension from it.
+
+The extension stays installed after Chrome restarts. To update, unzip the new release over the same folder and
+click the reload icon on Tsundoku in `chrome://extensions`.
+
+### From source, for testing
 
 ```bash
 git clone https://github.com/maniinpurple/Tsundoku.git
@@ -80,14 +91,15 @@ npm run build
 ```
 
 Then in Firefox open `about:debugging#/runtime/this-firefox`, click **Load Temporary Add-on…** and pick
-`dist/firefox-mv3/manifest.json`. A temporary add-on is removed when Firefox quits.
+`dist/firefox-mv3/manifest.json` (a temporary add-on is removed when Firefox quits). For Chrome run
+`npm run build:chrome` and load `dist/chrome-mv3` with **Load unpacked**.
 
 More ways to install (Developer Edition, development mode) are in [docs/INSTALL.md](docs/INSTALL.md).
 
 ## How to use
 
 1. Open an anime page on a supported site, e.g. `hianime.fm/frieren-beyond-journeys-end-481`.
-2. Click the Tsundoku icon in the toolbar. If Firefox asks, allow access to websites.
+2. Click the Tsundoku icon in the toolbar (pin it from the puzzle-piece menu). If asked, allow access to websites.
 3. Tick the episodes you want (or **All**, or a range like `1-12, 15`). The bar at the bottom sets **Sub/Dub**,
    **quality**, **subtitles** and **language**.
 4. Press **Download N episodes**. Progress shows in the **Downloads** tab; you can close the popup.
@@ -140,15 +152,16 @@ player streams to your browser.
 ```bash
 npm install
 npm run dev        # opens a fresh Firefox with the extension loaded; reloads on every save
+npm run dev:chrome # the same in Chrome
 npm run check      # type-check
-npm run build      # build into dist/firefox-mv3
+npm run build      # build into dist/firefox-mv3 (build:chrome → dist/chrome-mv3)
 npm run lint       # Mozilla's add-on linter on the build
-npm run zip        # extension zip + sources zip (for addons.mozilla.org)
-npm run e2e        # downloads a real episode in a hidden Firefox and checks the result
+npm run zip        # Firefox zip + sources zip (zip:chrome → Chrome zip)
+npm run e2e        # downloads a real episode in a hidden Firefox (E2E_BROWSER=chrome for Chrome)
 npm run health     # checks every supported site and player, redraws status/status.svg
 ```
 
-Set `FIREFOX_BIN` if `npm run dev` cannot find Firefox, for example
+Set `FIREFOX_BIN` / `CHROME_BIN` if a browser is not found, for example
 `FIREFOX_BIN="/Applications/Firefox Developer Edition.app/Contents/MacOS/firefox"`.
 
 - [CONTRIBUTING.md](CONTRIBUTING.md): how to help, project layout, adding a site or a player.

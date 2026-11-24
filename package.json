@@ -15,18 +15,21 @@
     "postinstall": "wxt prepare",
     "e2e": "node scripts/e2e.mjs",
     "lint": "web-ext lint -s dist/firefox-mv3",
-    "health": "node scripts/health-check.mjs"
+    "health": "node scripts/health-check.mjs",
+    "zip:chrome": "wxt zip -b chrome"
   },
   "devDependencies": {
     "@types/react": "^19.3.0",
     "@types/react-dom": "^19.3.0",
     "@wxt-dev/module-react": "^1.2.2",
+    "puppeteer-core": "^25.18.1",
     "typescript": "^7.0.2",
     "web-ext": "^10.8.0",
     "wxt": "^0.21.5"
   },
   "dependencies": {
     "mux.js": "^6.3.0",
+    "node-html-parser": "^9.0.7",
     "react": "^19.3.1",
     "react-dom": "^19.3.1"
   },

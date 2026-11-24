@@ -2,14 +2,14 @@
 
 > 積ん読: buying books and letting them pile up unread. Here: anime episodes.
 > Browser extension that downloads anime episodes from streaming sites: one episode, a range, or a whole season.
-> Firefox first, Chrome later (same code, built with WXT).
+> Firefox and Chrome from the same code, built with WXT.
 
 ## Decisions
 
 | | Decision |
 |---|---|
 | Name | **Tsundoku** |
-| Browser | Firefox first (MV3, Firefox 140+), Chrome after M5 |
+| Browser | Firefox 140+ and Chrome 120+ (MV3), one codebase |
 | Output | **MP4** (plays everywhere) with subtitles embedded as `mov_text` tracks, optionally also `.srt` files. The source is MPEG-TS segments; they are remuxed (new container, same video/audio bits) while downloading. Raw `.ts` is only an automatic fallback if remuxing fails |
 | Language | Code, UI and docs in English |
 | Sites | HiAnime first, but every site is a plug-in (`src/sources/<site>`) |
@@ -91,7 +91,10 @@ wanted track that has a supported player, in the site's order.
 - [x] **Fixes** (2026-11-24). Downloaded episodes can be downloaded again (with a reminder). Light/dark theme.
       Request a feature / Support links. Build output moved to the visible `dist/` folder (Vite told to scan only
       `src/` so `npm run dev` keeps working).
-- [ ] **Later:** Chrome build, "Download" buttons on the site itself, italics in embedded subtitles,
+- [x] **Chrome** (2026-11-24). Same code: HTML parsed with node-html-parser (no DOM in Chrome's service worker),
+      an offscreen page makes blob URLs for the download manager, PNG icons, per-browser manifest, startup
+      listeners so Chrome wakes the worker to resume downloads. `E2E_BROWSER=chrome npm run e2e` passes.
+- [ ] **Later:** "Download" buttons on the site itself, italics in embedded subtitles,
       fallback to the HD-1 (megaplay) server, more sites.
 
 ## Risks
@@ -100,7 +103,7 @@ wanted track that has a supported player, in the site's order.
 |---|---|
 | Site changes domain, API, or the Zoko key | All such values live in each adapter's `config.ts` |
 | 900 MB episodes in browser memory | Everything is written to the extension's private disk storage (OPFS). Needs about twice the episode size free while converting |
-| Chrome's background has no `DOMParser` | All HTML parsing goes through `parseHtml` in `core/http.ts`; swap it (offscreen document or linkedom) for the Chrome build |
+| Chrome's background has no DOM | node-html-parser for HTML, offscreen page for blob URLs. Resuming after Chrome stops the worker relies on the alarm and startup listeners; only the Firefox path is covered by an automated test |
 | Many requests at once get rate-limited | 4 segments in parallel, up to 7 retries, 403/429 back off up to 30 s |
 | Firefox suspends the background during a long download | Jobs and per-segment progress live in `storage.local`; an alarm wakes the background and the job resumes. Tested by reloading the extension mid-download (`E2E_INTERRUPT=1 npm run e2e`) |
 | Legal | Personal use only |

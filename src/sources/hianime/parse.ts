@@ -1,13 +1,14 @@
+import type { HtmlNode } from "../../core/http";
 import type { AnimeInfo, AnimeRef, Episode, Server } from "../../core/types";
 
-const text = (element: Element | null | undefined) => element?.textContent?.trim() || undefined;
+const text = (element: HtmlNode | null | undefined) => element?.textContent?.trim() || undefined;
 
-const count = (element: Element | null) => {
+const count = (element: HtmlNode | null) => {
   const value = Number.parseInt(text(element) ?? "", 10);
   return Number.isNaN(value) ? undefined : value;
 };
 
-export function parseAnimePage(doc: Document, ref: AnimeRef): AnimeInfo {
+export function parseAnimePage(doc: HtmlNode, ref: AnimeRef): AnimeInfo {
   const detail = doc.querySelector(".anisc-detail") ?? doc;
   const name = detail.querySelector(".film-name");
   return {
@@ -23,7 +24,7 @@ export function parseAnimePage(doc: Document, ref: AnimeRef): AnimeInfo {
   };
 }
 
-export function parseEpisodeList(doc: Document): Episode[] {
+export function parseEpisodeList(doc: HtmlNode): Episode[] {
   const episodes: Episode[] = [];
   for (const link of doc.querySelectorAll(".ss-list a.ep-item")) {
     const id = link.getAttribute("data-id");
@@ -42,7 +43,7 @@ export function parseEpisodeList(doc: Document): Episode[] {
   return episodes;
 }
 
-export function parseServerList(doc: Document): Server[] {
+export function parseServerList(doc: HtmlNode): Server[] {
   const servers: Server[] = [];
   for (const item of doc.querySelectorAll(".server-item")) {
     const track = item.getAttribute("data-type");

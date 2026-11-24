@@ -1,3 +1,4 @@
+import { parse } from "node-html-parser";
 import { useReferer } from "./headers";
 
 const TIMEOUT_MS = 15_000;
@@ -42,6 +43,9 @@ export async function fetchBytes(url: string, options?: FetchOptions): Promise<U
   return new Uint8Array(await (await request(url, options)).arrayBuffer());
 }
 
-export function parseHtml(html: string): Document {
-  return new DOMParser().parseFromString(html, "text/html");
+export type HtmlNode = ReturnType<typeof parse>;
+
+// Not DOMParser: Chrome runs the background as a service worker, which has no DOM.
+export function parseHtml(html: string): HtmlNode {
+  return parse(html);
 }

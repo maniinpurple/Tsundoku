@@ -1,6 +1,7 @@
 import { browser } from "wxt/browser";
 import { downloadSegments, remuxToMp4 } from "../core/download/hls-download";
 import { createOpfsSink, readStoredFile, removeStoredFile, storedFileSize } from "../core/download/sink";
+import type { FileSource } from "../core/file-url";
 import { parseMediaPlaylist, pickQuality } from "../core/hls";
 import { fetchText } from "../core/http";
 import { languageByCode } from "../core/languages";
@@ -9,6 +10,7 @@ import { episodePath } from "../core/naming";
 import { loadSettings } from "../core/settings";
 import { parseVtt, pickSubtitles, toSrt, type Cue } from "../core/subtitles";
 import type { DownloadJob, Subtitle } from "../core/types";
+import { fileUrl } from "./file-urls";
 import { addHistory, loadPart, removePart, savePart, update, type Part } from "./jobs";
 import { loadStream } from "./streams";
 
@@ -90,13 +92,15 @@ export async function runJob(job: DownloadJob, signal: AbortSignal) {
     settings.folder,
     settings.fileNameTemplate,
   );
-  const video = converted ? await mp4Sink.close() : (await mp4Sink.discard(), ts);
+  if (converted) await mp4Sink.close();
+  else await mp4Sink.discard();
+  const video = { stored: converted ? mp4FileName(job.id) : tsFileName(job.id) };
   const saved = await saveFile(video, `${path}.${converted ? "mp4" : "ts"}`);
 
   const separate = job.subtitleMode === "srt" || job.subtitleMode === "both" || (embed && !converted);
   if (separate) {
     for (const { subtitle, cues } of subtitles) {
-      await saveFile(new Blob([toSrt(cues)], { type: "application/x-subrip" }), `${path}.${subtitle.lang}.srt`);
+      await saveFile({ text: toSrt(cues), type: "application/x-subrip" }, `${path}.${subtitle.lang}.srt`);
     }
   }
 
@@ -154,15 +158,15 @@ function toTextTrack({ subtitle, cues }: { subtitle: Subtitle; cues: Cue[] }, in
   return { language: languageByCode(subtitle.lang), cues, isDefault: index === 0 };
 }
 
-async function saveFile(file: Blob, filename: string): Promise<{ id: number; fileName: string }> {
-  const url = URL.createObjectURL(file);
+async function saveFile(source: FileSource, filename: string): Promise<{ id: number; fileName: string }> {
+  const { url, revoke } = await fileUrl(source);
   try {
     const id = await browser.downloads.download({ url, filename, conflictAction: "uniquify", saveAs: false });
     await waitForDownload(id);
     const [item] = await browser.downloads.search({ id });
     return { id, fileName: item?.filename ?? filename };
   } finally {
-    URL.revokeObjectURL(url);
+    await revoke().catch(() => {});
   }
 }
 

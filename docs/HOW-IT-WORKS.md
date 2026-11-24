@@ -305,8 +305,13 @@ If mux.js cannot read a stream at all, the raw `.ts` is saved instead with separ
 ### Running in the background
 
 Downloads run in the extension's background script, not in the popup, so closing the popup does not stop them.
-Firefox may unload an idle background script; jobs and their progress are kept in `storage.local`, and a
-30-second alarm wakes the background up to continue them (`src/background/downloads.ts`).
+The browser may unload an idle background; jobs and their progress are kept in `storage.local`, and a 30-second
+alarm wakes the background up to continue them (`src/background/downloads.ts`).
+
+Firefox runs the background as a hidden page; Chrome runs it as a **service worker**, which has no DOM. That is
+why HTML is parsed with [node-html-parser](https://github.com/taoqf/node-html-parser) instead of `DOMParser`, and
+why on Chrome a small offscreen page (`src/entrypoints/offscreen`) creates the `blob:` URLs handed to the download
+manager (`src/background/file-urls.ts`). Everything else is the same code in both browsers.
 
 ## 7. When something breaks
 
