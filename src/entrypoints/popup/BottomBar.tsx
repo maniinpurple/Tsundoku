@@ -12,7 +12,7 @@ interface Props {
   settings: Settings;
   onChange: (changes: Partial<Settings>) => void;
   count: number;
-  skipped: number;
+  again: number;
   onDownload: () => Promise<void>;
 }
 
@@ -31,7 +31,7 @@ const SUBTITLE_MODES: { value: SubtitleMode; label: string }[] = [
   { value: "none", label: "No subtitles" },
 ];
 
-export function BottomBar({ anime, firstEpisode, settings, onChange, count, skipped, onDownload }: Props) {
+export function BottomBar({ anime, firstEpisode, settings, onChange, count, again, onDownload }: Props) {
   const [busy, setBusy] = useState(false);
   const available = useAsync(
     async () => (firstEpisode ? send("resolveEpisode", { ref: anime.ref, episodeId: firstEpisode.id, track: settings.track }) : null),
@@ -117,14 +117,16 @@ export function BottomBar({ anime, firstEpisode, settings, onChange, count, skip
         </label>
       </div>
       <button className="primary download-button" disabled={count === 0 || busy} onClick={start}>
-        {label(count, skipped)}
+        {count === 0 ? "Select episodes to download" : `Download ${count} episode${count === 1 ? "" : "s"}`}
       </button>
+      {again > 0 && (
+        <p className="muted small again">
+          {again === count
+            ? `Already downloaded before, will be downloaded again.`
+            : `${again} of these ${again === 1 ? "was" : "were"} downloaded before and will be downloaded again.`}
+        </p>
+      )}
     </footer>
   );
 }
 
-function label(count: number, skipped: number): string {
-  const skippedText = skipped > 0 ? ` (${skipped} already saved)` : "";
-  if (count === 0) return skipped > 0 ? `All selected episodes are already saved` : "Select episodes to download";
-  return `Download ${count} episode${count === 1 ? "" : "s"}${skippedText}`;
-}

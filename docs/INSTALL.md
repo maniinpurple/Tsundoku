@@ -33,7 +33,7 @@ npm run build
 ```
 
 1. Open `about:debugging#/runtime/this-firefox`.
-2. Click **Load Temporary Add-on…** and choose `.output/firefox-mv3/manifest.json`.
+2. Click **Load Temporary Add-on…** and choose `dist/firefox-mv3/manifest.json`.
 3. After changing code, run `npm run build` again and click **Reload** next to Tsundoku.
 
 The add-on is removed when Firefox quits.
@@ -47,7 +47,7 @@ The add-on is removed when Firefox quits.
    ```bash
    npm run zip
    ```
-3. Open `about:addons` → gear icon → **Install Add-on From File…** → choose `.output/tsundoku-<version>-firefox.zip`.
+3. Open `about:addons` → gear icon → **Install Add-on From File…** → choose `dist/tsundoku-<version>-firefox.zip`.
 
 Regular Firefox (release and beta) ignores that setting.
 

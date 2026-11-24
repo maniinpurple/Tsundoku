@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { send } from "../../core/messages";
 import { DEFAULT_FOLDER, DEFAULT_TEMPLATE, episodePath, TEMPLATE_TOKENS } from "../../core/naming";
+import type { Theme } from "../../core/settings";
 import { useSettings } from "./useSettings";
 
 export function SettingsPanel() {
@@ -55,6 +56,16 @@ export function SettingsPanel() {
         {preview}.mp4
       </div>
 
+      <h2>Appearance</h2>
+      <label className="field inline">
+        <span>Theme</span>
+        <select value={settings.theme} onChange={(e) => update({ theme: e.target.value as Theme })}>
+          <option value="system">System</option>
+          <option value="light">Light</option>
+          <option value="dark">Dark</option>
+        </select>
+      </label>
+
       <h2>Downloads</h2>
       <label className="field inline">
         <span>Episodes at the same time</span>
@@ -69,11 +80,6 @@ export function SettingsPanel() {
           ))}
         </select>
       </label>
-      <Toggle
-        label="Skip episodes I already downloaded"
-        checked={settings.skipDownloaded}
-        onChange={(skipDownloaded) => update({ skipDownloaded })}
-      />
       <Toggle
         label="Advanced: show stream links per episode"
         checked={settings.advanced}

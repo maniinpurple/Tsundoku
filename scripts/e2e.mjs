@@ -66,7 +66,7 @@ server.listen(0, "127.0.0.1", () => {
   };
   firefox = spawn(
     process.execPath,
-    ["node_modules/web-ext/bin/web-ext.js", "run", "-s", ".output/firefox-mv3-e2e", "--no-reload", "--arg=--headless",
+    ["node_modules/web-ext/bin/web-ext.js", "run", "-s", "dist/firefox-mv3-e2e", "--no-reload", "--arg=--headless",
       ...(process.env.FIREFOX_BIN ? ["--firefox", process.env.FIREFOX_BIN] : []),
       ...Object.entries(prefs).map(([k, v]) => `--pref=${k}=${v}`)],
     { stdio: "ignore", detached: true },

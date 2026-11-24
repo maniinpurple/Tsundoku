@@ -1,8 +1,10 @@
 node_modules/
 .output/
+dist/
 .wxt/
 web-ext.config.ts
 .DS_Store
 web-ext-artifacts/
 .env
 .amo-upload-uuid
+.claude/

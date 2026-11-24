@@ -49,7 +49,7 @@ npm run dev
 | Command | What it does |
 |---|---|
 | `npm run check` | Type-check |
-| `npm run build` | Build into `.output/firefox-mv3` |
+| `npm run build` | Build into `dist/firefox-mv3` |
 | `npm run lint` | Mozilla's add-on linter (run after `build`) |
 | `npm run e2e` | Download a real episode in a hidden Firefox and print the result |
 | `npm run health` | Check every supported site and player, redraw `status/status.svg` and the badges |

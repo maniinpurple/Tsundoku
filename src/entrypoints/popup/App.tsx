@@ -5,10 +5,15 @@ import { AnimeView } from "./AnimeView";
 import { DownloadsPanel } from "./DownloadsPanel";
 import { ErrorBox } from "./ErrorBox";
 import { SettingsPanel } from "./SettingsPanel";
+import type { Theme } from "../../core/settings";
+import { FEATURE_REQUEST_URL, SUPPORT_URL } from "./links";
 import { useAsync } from "./useAsync";
+import { useSettings } from "./useSettings";
 import { ACTIVE_STATUSES, useDownloads } from "./useDownloads";
 
 const ALL_SITES = { origins: ["<all_urls>"] };
+const NEXT_THEME: Record<Theme, Theme> = { system: "light", light: "dark", dark: "system" };
+const THEME_GLYPH: Record<Theme, string> = { system: "◐", light: "☀", dark: "☾" };
 
 type View = "episodes" | "downloads" | "settings";
 
@@ -22,6 +27,7 @@ async function inspectCurrentTab(): Promise<{ tab: TabInfo; hasAccess: boolean }
 export function App() {
   const [state, retry] = useAsync(inspectCurrentTab, []);
   const [view, setView] = useState<View>("episodes");
+  const [settings, updateSettings] = useSettings();
   const jobs = useDownloads();
   const activeCount = jobs.filter((job) => ACTIVE_STATUSES.includes(job.status)).length;
 
@@ -40,6 +46,13 @@ export function App() {
           <button aria-pressed={view === "settings"} aria-label="Settings" onClick={() => setView("settings")}>
             ⚙
           </button>
+          <button
+            aria-label={`Theme: ${settings.theme}`}
+            title={`Theme: ${settings.theme}`}
+            onClick={() => updateSettings({ theme: NEXT_THEME[settings.theme] })}
+          >
+            {THEME_GLYPH[settings.theme]}
+          </button>
         </nav>
       </header>
       {view === "downloads" && <DownloadsPanel jobs={jobs} />}
@@ -49,6 +62,15 @@ export function App() {
       {view === "episodes" && state.status === "ready" && (
         <TabView {...state.data} jobs={jobs} onAccessGranted={retry} onQueued={() => setView("downloads")} />
       )}
+      <footer className="footer">
+        <a href={FEATURE_REQUEST_URL} target="_blank" rel="noreferrer">
+          Request a feature
+        </a>
+        <span>·</span>
+        <a href={SUPPORT_URL} target="_blank" rel="noreferrer">
+          Support
+        </a>
+      </footer>
     </main>
   );
 }

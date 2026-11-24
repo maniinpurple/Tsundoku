@@ -4,6 +4,7 @@ import type { Track } from "./types";
 
 export type QualityPreference = "best" | "1080p" | "720p" | "480p" | "360p";
 export type SubtitleMode = "embed" | "srt" | "both" | "none";
+export type Theme = "system" | "light" | "dark";
 
 export interface Settings {
   track: Track;
@@ -15,7 +16,7 @@ export interface Settings {
   folder: string;
   fileNameTemplate: string;
   parallelDownloads: number;
-  skipDownloaded: boolean;
+  theme: Theme;
 }
 
 export const defaultSettings: Settings = {
@@ -27,7 +28,7 @@ export const defaultSettings: Settings = {
   folder: DEFAULT_FOLDER,
   fileNameTemplate: DEFAULT_TEMPLATE,
   parallelDownloads: 2,
-  skipDownloaded: true,
+  theme: "system",
 };
 
 const KEY = "settings";

@@ -87,7 +87,10 @@ wanted track that has a supported player, in the site's order.
       raw segments go to OPFS with their sizes saved after each one, a 30 s alarm wakes the background,
       and unfinished jobs continue from the last segment (Retry does the same for failed ones). MP4 conversion
       runs after the download. Settings tab: folder, file name template with preview, 1–3 parallel downloads,
-      skip already downloaded, advanced mode, forget history. Open / Folder buttons on finished downloads.
+      advanced mode, forget history. Open / Folder buttons on finished downloads.
+- [x] **Fixes** (2026-11-24). Downloaded episodes can be downloaded again (with a reminder). Light/dark theme.
+      Request a feature / Support links. Build output moved to the visible `dist/` folder (Vite told to scan only
+      `src/` so `npm run dev` keeps working).
 - [ ] **Later:** Chrome build, "Download" buttons on the site itself, italics in embedded subtitles,
       fallback to the HD-1 (megaplay) server, more sites.
 

@@ -31,7 +31,8 @@ one episode or a whole season at a time, with subtitles inside the video.
 - **Sub or Dub**, **quality** of your choice (falls back to the next lower one when an episode lacks it).
 - **Queue** with 1–3 episodes at a time, progress, Cancel and Retry.
 - **Resumes** where it stopped if Firefox unloads the extension or quits mid-download.
-- **Remembers** which episodes you already have (✓) and skips them if you want.
+- **Remembers** which episodes you already have (✓). Downloading one again still works, with a reminder.
+- **Light and dark theme**, or follow the system (button at the top right, or the ⚙ tab).
 - **Your own file names:** folder and file name template, e.g. `{anime}/{anime} - E{episode} [{quality}]`.
 - **No ads, no tracking, no accounts.** Nothing is sent anywhere except to the sites the video comes from.
 
@@ -79,7 +80,7 @@ npm run build
 ```
 
 Then in Firefox open `about:debugging#/runtime/this-firefox`, click **Load Temporary Add-on…** and pick
-`.output/firefox-mv3/manifest.json`. A temporary add-on is removed when Firefox quits.
+`dist/firefox-mv3/manifest.json`. A temporary add-on is removed when Firefox quits.
 
 More ways to install (Developer Edition, development mode) are in [docs/INSTALL.md](docs/INSTALL.md).
 
@@ -87,7 +88,8 @@ More ways to install (Developer Edition, development mode) are in [docs/INSTALL.
 
 1. Open an anime page on a supported site, e.g. `hianime.fm/frieren-beyond-journeys-end-481`.
 2. Click the Tsundoku icon in the toolbar. If Firefox asks, allow access to websites.
-3. Tick the episodes you want. The bar at the bottom sets **Sub/Dub**, **quality**, **subtitles** and **language**.
+3. Tick the episodes you want (or **All**, or a range like `1-12, 15`). The bar at the bottom sets **Sub/Dub**,
+   **quality**, **subtitles** and **language**.
 4. Press **Download N episodes**. Progress shows in the **Downloads** tab; you can close the popup.
 5. Finished episodes have **Open** and **Folder** buttons.
 
@@ -108,7 +110,8 @@ Downloads/
 | Folder | `Tsundoku` | Folder inside Downloads |
 | File name | `{anime}/{anime} - E{episode} [{quality}] [{track}]` | Tokens: `{anime}` `{episode}` `{title}` `{quality}` `{track}`; `/` makes sub-folders |
 | Episodes at the same time | 2 | 1–3. More is not faster: the video servers slow down busy clients |
-| Skip episodes I already downloaded | on | Uses the ✓ history kept by the extension |
+| Theme | System | System, Light or Dark |
+| Forget which episodes I downloaded | | Clears the ✓ marks |
 | Advanced | off | Shows each episode's stream and subtitle links with Copy buttons |
 
 ## FAQ
@@ -138,7 +141,7 @@ player streams to your browser.
 npm install
 npm run dev        # opens a fresh Firefox with the extension loaded; reloads on every save
 npm run check      # type-check
-npm run build      # build into .output/firefox-mv3
+npm run build      # build into dist/firefox-mv3
 npm run lint       # Mozilla's add-on linter on the build
 npm run zip        # extension zip + sources zip (for addons.mozilla.org)
 npm run e2e        # downloads a real episode in a hidden Firefox and checks the result

@@ -69,8 +69,8 @@ function LoadedAnime({ sourceName, anime, episodes, history, jobs, onQueued }: L
   const allSelected = episodes.length > 0 && selected.size === episodes.length;
 
   const saved = (id: string) => states.get(id)?.kind === "saved";
-  const toDownload = episodes.filter((e) => selected.has(e.id) && !(settings.skipDownloaded && saved(e.id)));
-  const skipped = selected.size - toDownload.length;
+  const toDownload = episodes.filter((e) => selected.has(e.id));
+  const again = toDownload.filter((e) => saved(e.id)).length;
 
   const download = async () => {
     const requests = toDownload
@@ -130,7 +130,7 @@ function LoadedAnime({ sourceName, anime, episodes, history, jobs, onQueued }: L
         settings={settings}
         onChange={updateSettings}
         count={toDownload.length}
-        skipped={skipped}
+        again={again}
         onDownload={download}
       />
     </div>

@@ -2,7 +2,13 @@ import { defineConfig } from "wxt";
 
 export default defineConfig({
   srcDir: "src",
+  outDir: "dist",
   modules: ["@wxt-dev/module-react"],
+  // Builds live in dist/ inside the project, so Vite must not scan their HTML during `npm run dev`.
+  vite: () => ({
+    optimizeDeps: { entries: ["src/**/*.html"] },
+    server: { watch: { ignored: ["**/dist/**"] } },
+  }),
   manifestVersion: 3,
   webExt: {
     startUrls: ["https://hianime.fm/frieren-beyond-journeys-end-481"],
