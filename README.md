@@ -81,7 +81,7 @@ npm run build
 Then in Firefox open `about:debugging#/runtime/this-firefox`, click **Load Temporary Add-on…** and pick
 `.output/firefox-mv3/manifest.json`. A temporary add-on is removed when Firefox quits.
 
-More ways to install, and how to publish your own signed build, are in [docs/INSTALL-AND-PUBLISH.md](docs/INSTALL-AND-PUBLISH.md).
+More ways to install (Developer Edition, development mode) are in [docs/INSTALL.md](docs/INSTALL.md).
 
 ## How to use
 

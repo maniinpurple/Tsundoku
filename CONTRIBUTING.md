@@ -44,7 +44,7 @@ npm run dev
 ```
 
 `npm run dev` opens a separate Firefox with the extension loaded and reloads it on every save. More options
-(temporary add-on, logs, signing) are in [docs/INSTALL-AND-PUBLISH.md](docs/INSTALL-AND-PUBLISH.md).
+(temporary add-on, logs) are in [docs/INSTALL.md](docs/INSTALL.md).
 
 | Command | What it does |
 |---|---|
