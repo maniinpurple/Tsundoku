@@ -2,6 +2,7 @@
   "name": "tsundoku",
   "description": "Download anime episodes from streaming sites, one episode or a whole season.",
   "version": "0.1.0",
+  "license": "GPL-3.0-only",
   "private": true,
   "type": "module",
   "scripts": {

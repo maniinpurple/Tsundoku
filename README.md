@@ -13,6 +13,7 @@ one episode or a whole season at a time, with subtitles inside the video.
 [![uptime 7d](https://img.shields.io/endpoint?url=https%3A%2F%2Fraw.githubusercontent.com%2Fmaniinpurple%2FTsundoku%2Fmain%2Fstatus%2Fbadges%2Fuptime.json)](#supported-sites)
 [![CI](https://github.com/maniinpurple/Tsundoku/actions/workflows/ci.yml/badge.svg)](https://github.com/maniinpurple/Tsundoku/actions/workflows/ci.yml)
 [![Firefox 140+](https://img.shields.io/badge/Firefox-140%2B-FF7139?logo=firefoxbrowser&logoColor=white)](#install)
+[![License: GPL-3.0](https://img.shields.io/badge/license-GPL--3.0-blue)](LICENSE)
 
 [Install](#install) · [Use it](#how-to-use) · [Supported sites](#supported-sites) · [FAQ](#faq) ·
 [Contributing](CONTRIBUTING.md) · [How it works](docs/HOW-IT-WORKS.md)
@@ -152,6 +153,11 @@ Set `FIREFOX_BIN` if `npm run dev` cannot find Firefox, for example
 - [ROADMAP.md](ROADMAP.md): milestones, findings and plans.
 
 Built with [WXT](https://wxt.dev), React, TypeScript and [mux.js](https://github.com/videojs/mux.js).
+
+## License
+
+[GPL-3.0](LICENSE). The way Tsundoku reads HiAnime and the ZokoAnime player was learned from
+[ani-cli](https://github.com/pystardust/ani-cli), which is also GPL-3.0.
 
 ## Disclaimer
 
