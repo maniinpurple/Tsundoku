@@ -1,7 +1,13 @@
 {
   "addons": {
     "tsundoku@maniinpurple.github.io": {
-      "updates": []
+      "updates": [
+        {
+          "version": "0.1.0",
+          "update_link": "https://github.com/maniinpurple/Tsundoku/releases/download/v0.1.0/tsundoku-0.1.0-firefox.xpi",
+          "update_hash": "sha256:11a264828ffbee376e36de22dbf0a386b49c8ee47f1ab17f6d798a051f0b5564"
+        }
+      ]
     }
   }
 }
