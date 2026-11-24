@@ -11,7 +11,10 @@
     "build:chrome": "wxt build",
     "zip": "wxt zip -b firefox",
     "check": "tsc --noEmit",
-    "postinstall": "wxt prepare"
+    "postinstall": "wxt prepare",
+    "e2e": "node scripts/e2e.mjs",
+    "lint": "web-ext lint -s .output/firefox-mv3",
+    "health": "node scripts/health-check.mjs"
   },
   "devDependencies": {
     "@types/react": "^19.3.0",
@@ -22,7 +25,15 @@
     "wxt": "^0.21.5"
   },
   "dependencies": {
+    "mux.js": "^6.3.0",
     "react": "^19.3.1",
     "react-dom": "^19.3.1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/maniinpurple/Tsundoku.git"
+  },
+  "engines": {
+    "node": ">=22.12"
   }
 }

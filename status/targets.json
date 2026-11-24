@@ -1,0 +1,26 @@
+{
+  "sites": [
+    {
+      "id": "hianime",
+      "name": "HiAnime",
+      "url": "https://hianime.fm",
+      "state": "supported",
+      "check": { "animeId": "481", "episodeId": "9227" }
+    }
+  ],
+  "players": [
+    {
+      "id": "zoko",
+      "name": "ZokoAnime",
+      "url": "https://zokoanime.video",
+      "state": "supported",
+      "check": { "embed": "https://zokoanime.video/stream/mal/52991/1/sub", "key": "otaku-embed-v1" }
+    },
+    {
+      "id": "megaplay",
+      "name": "MegaPlay (HD-1)",
+      "url": "https://megaplay.buzz",
+      "state": "planned"
+    }
+  ]
+}

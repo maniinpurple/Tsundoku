@@ -6,12 +6,13 @@ export default defineConfig({
   manifestVersion: 3,
   webExt: {
     startUrls: ["https://hianime.fm/frieren-beyond-journeys-end-481"],
-    binaries: { firefox: "/Applications/Firefox.app/Contents/MacOS/firefox" },
+    // Set FIREFOX_BIN if web-ext cannot find Firefox on its own (e.g. Developer Edition).
+    binaries: process.env.FIREFOX_BIN ? { firefox: process.env.FIREFOX_BIN } : undefined,
   },
   manifest: {
     name: "Tsundoku",
     description: "Download anime episodes from streaming sites, one episode or a whole season.",
-    permissions: ["activeTab", "declarativeNetRequestWithHostAccess"],
+    permissions: ["activeTab", "alarms", "declarativeNetRequestWithHostAccess", "downloads", "downloads.open", "storage"],
     // Sites move between mirror domains and video CDNs change often, so a fixed host list would keep breaking.
     host_permissions: ["<all_urls>"],
     icons: { 48: "icon.svg", 96: "icon.svg" },

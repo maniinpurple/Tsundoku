@@ -76,3 +76,38 @@ export interface ResolvedEpisode extends PlayerStream {
   /** Best first. */
   qualities: Quality[];
 }
+
+export type DownloadStatus =
+  | "queued"
+  | "resolving"
+  | "downloading"
+  | "converting"
+  | "saving"
+  | "done"
+  | "failed"
+  | "cancelled";
+
+export interface DownloadRequest {
+  ref: AnimeRef;
+  animeTitle: string;
+  episodeCount: number;
+  episode: Pick<Episode, "id" | "number" | "title">;
+  track: Track;
+  /** "1080p", or "best". A missing quality falls back to the next lower one. */
+  quality: string;
+  subtitleMode: "embed" | "srt" | "both" | "none";
+  subtitleLanguage: string;
+}
+
+export interface DownloadJob extends DownloadRequest {
+  id: string;
+  status: DownloadStatus;
+  createdAt: number;
+  segmentsDone: number;
+  segmentsTotal: number;
+  bytes: number;
+  fileName?: string;
+  downloadId?: number;
+  note?: string;
+  error?: string;
+}

@@ -1,5 +1,5 @@
 import { browser } from "wxt/browser";
-import type { AnimeInfo, AnimeRef, Episode, ResolvedEpisode, Track } from "./types";
+import type { AnimeInfo, AnimeRef, DownloadJob, DownloadRequest, Episode, ResolvedEpisode, Track } from "./types";
 
 export type TabInfo =
   | { kind: "anime"; sourceName: string; anime: AnimeRef }
@@ -10,6 +10,21 @@ export interface MessageMap {
   inspectTab: { request: { url: string }; reply: TabInfo };
   loadAnime: { request: { ref: AnimeRef }; reply: { anime: AnimeInfo; episodes: Episode[] } };
   resolveEpisode: { request: { ref: AnimeRef; episodeId: string; track: Track }; reply: ResolvedEpisode };
+  startDownloads: { request: { requests: DownloadRequest[] }; reply: number };
+  listDownloads: { request: Record<string, never>; reply: DownloadJob[] };
+  retryDownload: { request: { id: string }; reply: void };
+  cancelDownload: { request: { id: string }; reply: void };
+  cancelAll: { request: Record<string, never>; reply: void };
+  clearFinished: { request: Record<string, never>; reply: void };
+  downloadHistory: { request: { ref: AnimeRef }; reply: HistoryItem[] };
+  clearHistory: { request: Record<string, never>; reply: void };
+}
+
+export interface HistoryItem {
+  episodeId: string;
+  track: string;
+  fileName: string;
+  downloadId?: number;
 }
 
 export type MessageName = keyof MessageMap;

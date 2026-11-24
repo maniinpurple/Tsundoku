@@ -1,28 +1,18 @@
 import type { MessageName, Reply, Request, TabInfo } from "../core/messages";
-import { findSource, getSource } from "../core/registry";
-import { resolveEpisode } from "../core/resolve";
-import type { Source } from "../core/types";
+import { findSource } from "../core/registry";
+import {
+  cancelAll,
+  cancelDownload,
+  clearFinished,
+  clearHistory,
+  listDownloads,
+  retryDownload,
+  startDownloads,
+} from "./downloads";
+import { historyFor } from "./jobs";
+import { loadAnime, loadStream } from "./streams";
 
 type Handlers = { [N in MessageName]: (payload: Request<N>) => Promise<Reply<N>> };
-
-const CACHE_MS = 10 * 60_000;
-const STREAM_CACHE_MS = 2 * 60_000;
-const cache = new Map<string, { expires: number; value: Promise<unknown> }>();
-
-function cached<T>(key: string, load: () => Promise<T>, ttl = CACHE_MS): Promise<T> {
-  const hit = cache.get(key);
-  if (hit && hit.expires > Date.now()) return hit.value as Promise<T>;
-  const value = load();
-  cache.set(key, { expires: Date.now() + ttl, value });
-  value.catch(() => cache.delete(key));
-  return value;
-}
-
-function sourceById(id: string): Source {
-  const source = getSource(id);
-  if (!source) throw new Error(`Unknown source "${id}"`);
-  return source;
-}
 
 export const handlers: Handlers = {
   async inspectTab({ url: rawUrl }): Promise<TabInfo> {
@@ -36,18 +26,17 @@ export const handlers: Handlers = {
   },
 
   async loadAnime({ ref }) {
-    const source = sourceById(ref.sourceId);
-    const key = `${ref.sourceId}:${ref.siteUrl}:${ref.animeId}`;
-    const [anime, episodes] = await Promise.all([
-      cached(`anime:${key}`, () => source.getAnime(ref)),
-      cached(`episodes:${key}`, () => source.listEpisodes(ref)),
-    ]);
+    const [anime, episodes] = await loadAnime(ref);
     return { anime: { ...anime, ref }, episodes };
   },
 
-  async resolveEpisode({ ref, episodeId, track }) {
-    const source = sourceById(ref.sourceId);
-    const key = `stream:${ref.sourceId}:${ref.siteUrl}:${episodeId}:${track}`;
-    return cached(key, () => resolveEpisode(source, ref, episodeId, track), STREAM_CACHE_MS);
-  },
+  resolveEpisode: ({ ref, episodeId, track }) => loadStream(ref, episodeId, track),
+  startDownloads: ({ requests }) => startDownloads(requests),
+  listDownloads: () => listDownloads(),
+  retryDownload: ({ id }) => retryDownload(id),
+  cancelDownload: ({ id }) => cancelDownload(id),
+  cancelAll: () => cancelAll(),
+  clearFinished: () => clearFinished(),
+  downloadHistory: ({ ref }) => historyFor(ref),
+  clearHistory: () => clearHistory(),
 };

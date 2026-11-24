@@ -1,0 +1,32 @@
+name: Site or player request
+description: Ask for support for a new streaming site or embedded video player.
+labels: ["site", "needs investigation"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Tsundoku only supports sites that work without logins, paywalls, CAPTCHAs or DRM, and never sites that sell
+        or license the content officially. docs/HOW-IT-WORKS.md explains how to investigate a site; findings help a lot.
+  - type: input
+    id: site
+    attributes:
+      label: Site URL
+      placeholder: https://example-anime.to
+    validations:
+      required: true
+  - type: input
+    id: example
+    attributes:
+      label: Example anime page
+    validations:
+      required: true
+  - type: textarea
+    id: players
+    attributes:
+      label: Servers / players the site uses
+      description: Names shown on the site (e.g. "HD-1", "ZokoAnime") and, if you know them, the embed URLs.
+  - type: textarea
+    id: findings
+    attributes:
+      label: What you found (optional)
+      description: API requests, where the video URL hides, required headers…

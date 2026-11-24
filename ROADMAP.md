@@ -2,15 +2,15 @@
 
 > 積ん読: buying books and letting them pile up unread. Here: anime episodes.
 > Browser extension that downloads anime episodes from streaming sites: one episode, a range, or a whole season.
-> Firefox first, Chrome later (same code, built with WXT). Fully independent from ani-box.
+> Firefox first, Chrome later (same code, built with WXT).
 
 ## Decisions
 
 | | Decision |
 |---|---|
 | Name | **Tsundoku** |
-| Browser | Firefox first (MV3, Firefox 140+), Chrome after M6 |
-| Output | User picks the format. Default **MP4** (plays everywhere); also `.ts` (raw, fastest) |
+| Browser | Firefox first (MV3, Firefox 140+), Chrome after M5 |
+| Output | **MP4** (plays everywhere) with subtitles embedded as `mov_text` tracks, optionally also `.srt` files. The source is MPEG-TS segments; they are remuxed (new container, same video/audio bits) while downloading. Raw `.ts` is only an automatic fallback if remuxing fails |
 | Language | Code, UI and docs in English |
 | Sites | HiAnime first, but every site is a plug-in (`src/sources/<site>`) |
 
@@ -23,6 +23,14 @@
   (`/api/downloads/...` → pahe.nekostream.site → kwik.cx), and kwik.cx sits behind a Cloudflare bot check.
   Tsundoku will not try to get around bot checks, so we download the HLS stream ourselves.
 - hianime moved from `hianime.at` to `hianime.fm`; the adapter accepts any `hianime.<tld>`.
+- Only playlists need the Referer; segments and subtitles do not. The segment CDN (Cloudflare) answers 403
+  to bursts, so segment fetching stays at 4 in parallel.
+- Fragmented MP4 (what mux.js and `ffmpeg -movflags frag_keyframe` produce) is misread by QuickTime/AVFoundation
+  (wrong duration, sometimes no audio). `core/mp4/flatten.ts` rewrites it as a regular MP4.
+- Zoko marks every subtitle as `en`; the language is read from its label instead (`core/languages.ts`).
+  Some episodes only have 1080p.
+- Measured (Frieren E1, 26 min): 360p 68 MB in 48 s, 1080p 352 MB in 36 s. Firefox memory stays flat during
+  the download because the file is written to OPFS, not kept in RAM.
 
 ## How it works
 
@@ -33,7 +41,8 @@ Background (the brain, keeps running)
   ├─ core/registry  → which Source handles this URL?
   ├─ sources/hianime → anime → episodes → servers → embed URL
   ├─ players/zoko   → embed page → decode __P → master.m3u8 + subtitles
-  └─ core/hls, core/mux, core/queue → fetch segments → MP4 → Downloads/<Anime>/<file>
+  └─ background/runner → segments → <id>.ts in OPFS (resumable) → mux.js + flatten → <id>.mp4 in OPFS
+                        → Downloads/<folder>/<template>.mp4
 ```
 
 ## Layout
@@ -43,8 +52,10 @@ src/
 ├── entrypoints/      Things the browser runs (WXT finds them by folder name)
 │   ├── background.ts   routes messages to src/background/handlers.ts
 │   └── popup/          the UI shown when you click the toolbar icon (React)
-├── background/       Message handlers (the work the background does)
-├── core/             Site-agnostic: types, messages, registry, http, (later) hls, mux, queue, naming
+├── background/       handlers, downloads (queue + watchdog), runner (one job), jobs (persistence), caches
+├── core/             Site-agnostic: types, messages, registry, http, hls, resolve, naming, subtitles
+│   ├── download/       segment fetching, OPFS file sink
+│   └── mp4/            box helpers, mux.js wrapper, fragmented → regular MP4
 ├── sources/<site>/   One folder per streaming site: index.ts (Source), parse.ts (HTML → data), config.ts
 └── players/<host>/   One folder per embed host (Zoko; later megaplay). Implements the Player interface.
 ```
@@ -62,13 +73,22 @@ wanted track that has a supported player, in the site's order.
 - [x] **M2: resolve one episode** (2026-11-22). Sub/Dub picker; click an episode → servers → Zoko →
       `master.m3u8` → qualities + subtitles, each with a Copy link button. Player plug-ins in `src/players`,
       Referer added by a declarativeNetRequest session rule limited to the extension's own requests.
-- [ ] **M3: download one episode as `.ts`.** Fetch segments with the right Referer, several at a time,
-      save to disk. Check memory use on a 1080p episode (biggest risk).
-- [ ] **M4: MP4 + subtitles.** Convert TS → MP4 in the browser, format setting, save subtitles as `.srt`.
-- [ ] **M5: selection and queue.** All / single / range, 2–3 episodes at a time, progress, pause, retry,
-      skip files already downloaded.
-- [ ] **M6: settings and polish.** Default quality, Sub/Dub, subtitle language, file name template.
-- [ ] **Later:** Chrome build, "Download" buttons on the site itself, `.mkv` with embedded subtitles,
+- [x] **M3: download one episode as MP4** (2026-11-22). Download button per quality; segments fetched 4 at a
+      time (longer back-off on 403/429), remuxed with mux.js, rewritten as a regular MP4, written to OPFS, then
+      saved to `Downloads/Tsundoku/<Anime>/` with an `.srt` next to it. Downloads panel with progress and Cancel.
+      `npm run e2e` downloads a real episode in a throwaway headless Firefox and checks the result.
+- [x] **M4: selection, queue and embedded subtitles** (2026-11-22). Checkbox per episode, "All", range box
+      (`1-12, 15`); bottom bar with Sub/Dub, quality (falls back to the next lower one), subtitles
+      (in the video / separate .srt / both / none) and language (one or all). Settings remembered.
+      2 episodes download in parallel; downloaded episodes get a ✓ (history kept in `storage.local`).
+      Subtitles are embedded as `mov_text` tracks: QuickTime (View → Subtitles), IINA, VLC, iPhone.
+      Advanced mode (⚙) shows stream links per episode. Episodes / Downloads tabs.
+- [x] **M5: polish** (2026-11-24). Downloads survive the background being unloaded or Firefox restarting:
+      raw segments go to OPFS with their sizes saved after each one, a 30 s alarm wakes the background,
+      and unfinished jobs continue from the last segment (Retry does the same for failed ones). MP4 conversion
+      runs after the download. Settings tab: folder, file name template with preview, 1–3 parallel downloads,
+      skip already downloaded, advanced mode, forget history. Open / Folder buttons on finished downloads.
+- [ ] **Later:** Chrome build, "Download" buttons on the site itself, italics in embedded subtitles,
       fallback to the HD-1 (megaplay) server, more sites.
 
 ## Risks
@@ -76,7 +96,8 @@ wanted track that has a supported player, in the site's order.
 | Risk | Mitigation |
 |---|---|
 | Site changes domain, API, or the Zoko key | All such values live in each adapter's `config.ts` |
-| 900 MB episodes in browser memory | Measure in M3; keep segments as Blobs (Firefox moves large Blobs to disk) |
+| 900 MB episodes in browser memory | Everything is written to the extension's private disk storage (OPFS). Needs about twice the episode size free while converting |
 | Chrome's background has no `DOMParser` | All HTML parsing goes through `parseHtml` in `core/http.ts`; swap it (offscreen document or linkedom) for the Chrome build |
-| Many requests at once get rate-limited | Small concurrency limit, retries with backoff |
+| Many requests at once get rate-limited | 4 segments in parallel, up to 7 retries, 403/429 back off up to 30 s |
+| Firefox suspends the background during a long download | Jobs and per-segment progress live in `storage.local`; an alarm wakes the background and the job resumes. Tested by reloading the extension mid-download (`E2E_INTERRUPT=1 npm run e2e`) |
 | Legal | Personal use only |

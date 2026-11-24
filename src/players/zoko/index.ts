@@ -1,4 +1,5 @@
 import { FetchError, fetchText } from "../../core/http";
+import { languageFromLabel } from "../../core/languages";
 import type { Player, Subtitle } from "../../core/types";
 import { zokoConfig } from "./config";
 
@@ -35,12 +36,15 @@ export const zoko: Player = {
 
     const subtitles: Subtitle[] = (config.subtitles ?? [])
       .filter((sub) => sub.src)
-      .map((sub) => ({
-        lang: sub.lang ?? "und",
-        label: sub.label ?? sub.lang ?? "Unknown",
-        url: new URL(sub.src!, embedUrl).href,
-        default: sub.default ?? false,
-      }));
+      .map((sub) => {
+        const language = languageFromLabel(sub.label ?? "");
+        return {
+          lang: language?.code ?? sub.lang ?? "und",
+          label: language?.name ?? sub.label ?? "Unknown",
+          url: new URL(sub.src!, embedUrl).href,
+          default: sub.default ?? false,
+        };
+      });
 
     return { masterUrl: new URL(config.src, embedUrl).href, referer: new URL(embedUrl).origin + "/", subtitles };
   },

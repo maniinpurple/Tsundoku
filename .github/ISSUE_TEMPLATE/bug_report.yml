@@ -1,0 +1,43 @@
+name: Bug report
+description: Something does not work, or a site/player that used to work is broken.
+labels: ["bug"]
+body:
+  - type: markdown
+    attributes:
+      value: Thanks for reporting! Please fill in what you can; links and exact error messages help most.
+  - type: input
+    id: page
+    attributes:
+      label: Anime page URL
+      description: The page you were on when it happened.
+      placeholder: https://hianime.fm/frieren-beyond-journeys-end-481
+  - type: input
+    id: episodes
+    attributes:
+      label: Episode(s), Sub/Dub, quality
+      placeholder: E5, Sub, 1080p
+  - type: textarea
+    id: what
+    attributes:
+      label: What happened?
+      description: Include the exact error from the Downloads tab if there is one.
+    validations:
+      required: true
+  - type: textarea
+    id: expected
+    attributes:
+      label: What did you expect?
+  - type: input
+    id: versions
+    attributes:
+      label: Tsundoku and Firefox versions
+      description: Tsundoku version is in about:addons; Firefox version in Help → About Firefox.
+      placeholder: Tsundoku 0.1.0, Firefox 146, macOS 26
+    validations:
+      required: true
+  - type: textarea
+    id: logs
+    attributes:
+      label: Background console (optional)
+      description: about:debugging#/runtime/this-firefox → Tsundoku → Inspect → Console. Paste red errors here.
+      render: text

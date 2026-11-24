@@ -1,25 +1,139 @@
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import { send } from "../../core/messages";
-import type { AnimeInfo, AnimeRef, Episode, Track } from "../../core/types";
+import type { AnimeInfo, AnimeRef, DownloadJob, Episode } from "../../core/types";
+import { BottomBar } from "./BottomBar";
+import { EpisodeList, type EpisodeState } from "./EpisodeList";
 import { ErrorBox } from "./ErrorBox";
-import { EpisodeList } from "./EpisodeList";
+import { parseRange } from "./selection";
 import { useAsync } from "./useAsync";
+import { ACTIVE_STATUSES } from "./useDownloads";
+import { useSettings } from "./useSettings";
 
-export function AnimeView({ sourceName, animeRef }: { sourceName: string; animeRef: AnimeRef }) {
-  const [state, retry] = useAsync(() => send("loadAnime", { ref: animeRef }), [animeRef.siteUrl, animeRef.animeId]);
-  const [chosenTrack, setTrack] = useState<Track>();
+interface Props {
+  sourceName: string;
+  animeRef: AnimeRef;
+  jobs: DownloadJob[];
+  onQueued: () => void;
+}
+
+export function AnimeView({ sourceName, animeRef, jobs, onQueued }: Props) {
+  const [state, retry] = useAsync(async () => {
+    const [anime, history] = await Promise.all([
+      send("loadAnime", { ref: animeRef }),
+      send("downloadHistory", { ref: animeRef }),
+    ]);
+    return { ...anime, history };
+  }, [animeRef.siteUrl, animeRef.animeId]);
 
   if (state.status === "loading") return <p className="muted">Loading episodes…</p>;
   if (state.status === "error") return <ErrorBox message={state.message} onRetry={retry} />;
+  return <LoadedAnime sourceName={sourceName} {...state.data} jobs={jobs} onQueued={onQueued} />;
+}
 
-  const { anime, episodes } = state.data;
-  const track = chosenTrack ?? (anime.subCount === 0 && anime.dubCount ? "dub" : "sub");
+interface LoadedProps {
+  sourceName: string;
+  anime: AnimeInfo;
+  episodes: Episode[];
+  history: { episodeId: string; track: string }[];
+  jobs: DownloadJob[];
+  onQueued: () => void;
+}
+
+function LoadedAnime({ sourceName, anime, episodes, history, jobs, onQueued }: LoadedProps) {
+  const [settings, updateSettings] = useSettings();
+  const [selected, setSelected] = useState<Set<string>>(() => new Set(anime.ref.episodeId ? [anime.ref.episodeId] : []));
+  const [range, setRange] = useState("");
+
+  const states = useMemo(() => {
+    const map = new Map<string, EpisodeState>();
+    for (const entry of history) if (entry.track === settings.track) map.set(entry.episodeId, { kind: "saved" });
+    for (const job of jobs) {
+      if (job.ref.animeId !== anime.ref.animeId || job.track !== settings.track) continue;
+      if (job.status === "done") map.set(job.episode.id, { kind: "saved" });
+      else if (ACTIVE_STATUSES.includes(job.status)) {
+        const percent = job.segmentsTotal ? Math.floor((job.segmentsDone / job.segmentsTotal) * 100) : 0;
+        map.set(job.episode.id, { kind: "active", percent });
+      }
+    }
+    return map;
+  }, [history, jobs, settings.track, anime.ref.animeId]);
+
+  const toggle = (id: string) =>
+    setSelected((current) => {
+      const next = new Set(current);
+      if (next.has(id)) next.delete(id);
+      else next.add(id);
+      return next;
+    });
+
+  const allSelected = episodes.length > 0 && selected.size === episodes.length;
+
+  const saved = (id: string) => states.get(id)?.kind === "saved";
+  const toDownload = episodes.filter((e) => selected.has(e.id) && !(settings.skipDownloaded && saved(e.id)));
+  const skipped = selected.size - toDownload.length;
+
+  const download = async () => {
+    const requests = toDownload
+      .map((episode) => ({
+        ref: anime.ref,
+        animeTitle: anime.title,
+        episodeCount: episodes.length,
+        episode: { id: episode.id, number: episode.number, title: episode.title },
+        track: settings.track,
+        quality: settings.quality,
+        subtitleMode: settings.subtitleMode,
+        subtitleLanguage: settings.subtitleLanguage,
+      }));
+    await send("startDownloads", { requests });
+    setSelected(new Set());
+    onQueued();
+  };
+
   return (
-    <>
+    <div className="anime-layout">
       <AnimeHeader sourceName={sourceName} anime={anime} episodes={episodes} />
-      <TrackPicker anime={anime} track={track} onChange={setTrack} />
-      <EpisodeList animeRef={animeRef} episodes={episodes} track={track} />
-    </>
+      <div className="selection-bar">
+        <label className="check">
+          <input
+            type="checkbox"
+            checked={allSelected}
+            ref={(input) => {
+              if (input) input.indeterminate = selected.size > 0 && !allSelected;
+            }}
+            onChange={() => setSelected(allSelected ? new Set() : new Set(episodes.map((e) => e.id)))}
+          />
+          All
+        </label>
+        <input
+          className="range"
+          placeholder="Episodes, e.g. 1-12, 15"
+          value={range}
+          onChange={(event) => {
+            setRange(event.target.value);
+            if (event.target.value.trim()) setSelected(parseRange(event.target.value, episodes));
+          }}
+        />
+        <span className="muted small">{selected.size} selected</span>
+      </div>
+      <EpisodeList
+        anime={anime}
+        episodes={episodes}
+        selected={selected}
+        states={states}
+        advanced={settings.advanced}
+        track={settings.track}
+        onToggle={toggle}
+      />
+      <BottomBar
+        anime={anime}
+        firstEpisode={episodes[0]}
+        settings={settings}
+        onChange={updateSettings}
+        count={toDownload.length}
+        skipped={skipped}
+        onDownload={download}
+      />
+    </div>
   );
 }
 
@@ -41,27 +155,5 @@ function AnimeHeader({ sourceName, anime, episodes }: { sourceName: string; anim
         </div>
       </div>
     </section>
-  );
-}
-
-function TrackPicker({ anime, track, onChange }: { anime: AnimeInfo; track: Track; onChange: (track: Track) => void }) {
-  const options: { value: Track; label: string; count?: number }[] = [
-    { value: "sub", label: "Sub", count: anime.subCount },
-    { value: "dub", label: "Dub", count: anime.dubCount },
-  ];
-  return (
-    <div className="segmented" role="radiogroup" aria-label="Audio">
-      {options.map((option) => (
-        <button
-          key={option.value}
-          role="radio"
-          aria-checked={track === option.value}
-          disabled={option.count === 0}
-          onClick={() => onChange(option.value)}
-        >
-          {option.label}
-        </button>
-      ))}
-    </div>
   );
 }

@@ -3,3 +3,6 @@ node_modules/
 .wxt/
 web-ext.config.ts
 .DS_Store
+web-ext-artifacts/
+.env
+.amo-upload-uuid

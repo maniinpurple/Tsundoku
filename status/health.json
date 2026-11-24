@@ -1,0 +1,32 @@
+{
+  "hianime": {
+    "history": [
+      {
+        "t": 1795514363187,
+        "ok": true
+      },
+      {
+        "t": 1795514410508,
+        "ok": true
+      }
+    ],
+    "message": "28 episodes, 4 servers",
+    "ok": true,
+    "checkedAt": "2026-11-24T10:00:10.508Z"
+  },
+  "zoko": {
+    "history": [
+      {
+        "t": 1795514363187,
+        "ok": true
+      },
+      {
+        "t": 1795514410508,
+        "ok": true
+      }
+    ],
+    "message": "stream ok, 1 subtitles",
+    "ok": true,
+    "checkedAt": "2026-11-24T10:00:10.508Z"
+  }
+}
