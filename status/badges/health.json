@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
   "label": "health",
-  "message": "up",
-  "color": "brightgreen"
+  "message": "degraded",
+  "color": "yellow"
 }
