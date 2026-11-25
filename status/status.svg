@@ -7,9 +7,9 @@
 <rect x="0" y="26" width="260" height="26" fill="#555"/>
 <g font-size="11"><text x="130" y="45" fill="#010101" fill-opacity=".3" text-anchor="middle" font-weight="bold">Sites</text><text x="130" y="44" fill="#fff" text-anchor="middle" font-weight="bold">Sites</text></g>
 <rect x="0" y="52" width="170" height="22" fill="#555"/>
-<rect x="170" y="52" width="90" height="22" fill="#e05d44"/>
+<rect x="170" y="52" width="90" height="22" fill="#4c1"/>
 <text x="162" y="68" fill="#010101" fill-opacity=".3" text-anchor="end">HiAnime</text><text x="162" y="67" fill="#fff" text-anchor="end">HiAnime</text>
-<text x="215" y="68" fill="#010101" fill-opacity=".3" text-anchor="middle">broken</text><text x="215" y="67" fill="#fff" text-anchor="middle">broken</text>
+<text x="215" y="68" fill="#010101" fill-opacity=".3" text-anchor="middle">working</text><text x="215" y="67" fill="#fff" text-anchor="middle">working</text>
 <rect x="0" y="74" width="260" height="26" fill="#555"/>
 <g font-size="11"><text x="130" y="93" fill="#010101" fill-opacity=".3" text-anchor="middle" font-weight="bold">Players</text><text x="130" y="92" fill="#fff" text-anchor="middle" font-weight="bold">Players</text></g>
 <rect x="0" y="100" width="170" height="22" fill="#555"/>
@@ -21,6 +21,6 @@
 <text x="162" y="138" fill="#010101" fill-opacity=".3" text-anchor="end">MegaPlay (HD-1)</text><text x="162" y="137" fill="#fff" text-anchor="end">MegaPlay (HD-1)</text>
 <text x="215" y="138" fill="#010101" fill-opacity=".3" text-anchor="middle">planned</text><text x="215" y="137" fill="#fff" text-anchor="middle">planned</text>
 <rect x="0" y="144" width="260" height="22" fill="#444"/>
-<g font-size="10"><text x="130" y="160" fill="#010101" fill-opacity=".3" text-anchor="middle">checked 2026-11-25 08:43 UTC</text><text x="130" y="159" fill="#fff" text-anchor="middle">checked 2026-11-25 08:43 UTC</text></g>
+<g font-size="10"><text x="130" y="160" fill="#010101" fill-opacity=".3" text-anchor="middle">checked 2026-11-25 21:45 UTC</text><text x="130" y="159" fill="#fff" text-anchor="middle">checked 2026-11-25 21:45 UTC</text></g>
 </g>
 </svg>
