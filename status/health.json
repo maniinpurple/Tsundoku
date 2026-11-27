@@ -32,11 +32,15 @@
       {
         "t": 1795729126705,
         "ok": true
+      },
+      {
+        "t": 1795768942300,
+        "ok": true
       }
     ],
     "message": "28 episodes, 4 servers",
     "ok": true,
-    "checkedAt": "2026-11-26T21:38:46.705Z"
+    "checkedAt": "2026-11-27T08:42:22.300Z"
   },
   "zoko": {
     "history": [
@@ -71,10 +75,14 @@
       {
         "t": 1795729126705,
         "ok": true
+      },
+      {
+        "t": 1795768942300,
+        "ok": true
       }
     ],
     "message": "stream ok, 1 subtitles",
     "ok": true,
-    "checkedAt": "2026-11-26T21:38:46.705Z"
+    "checkedAt": "2026-11-27T08:42:22.300Z"
   }
 }
